@@ -1,7 +1,10 @@
 package edu.temple.xkcdreader
 
+import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -36,6 +39,24 @@ class MainActivity : AppCompatActivity() {
         fetchComicButton.setOnClickListener{
             lifecycleScope.launch(Dispatchers.Main) {
                 fetchComic(comicNumberEditText.text.toString())
+            }
+        }
+
+        findViewById<Button>(R.id.requestButton).setOnClickListener {
+            val appIntent = Intent(
+                Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS,
+                Uri.parse("package:${this@MainActivity.packageName}")
+            )
+            startActivity(appIntent)
+        }
+
+        intent.action?.run {
+            if (this == Intent.ACTION_VIEW) {
+                intent.data?.let {
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        fetchComic(it.path!!.substringAfter('/').substringBefore('/'))
+                    }
+                }
             }
         }
 
